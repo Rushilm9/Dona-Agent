@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donna - Personal Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --nav-width: 280px;
+            --primary-color: #0a2647;
+            --secondary-color: #144272;
+            --accent-color: #a3c4e0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f8fa;
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Layout Container */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation (Mobile) */
+        .mobile-nav {
+            display: none;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 60px;
+        }
+
+        .mobile-nav-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mobile-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--accent-color);
+        }
+
+        .mobile-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Main Content Area */
+        .main-content-area {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Desktop Navigation */
+        .navigation {
+            width: var(--nav-width);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            top: 0px;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--accent-color);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .navigation-title {
+            font-size: 22px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .navigation-subtitle {
+            color: var(--accent-color);
+            margin-bottom: 35px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .nav-menu {
+            width: 100%;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            font-size: 16px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: var(--secondary-color);
+            transform: translateX(3px);
+        }
+
+        .nav-item.active {
+            background-color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            width: 24px;
+            text-align: center;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            background-color: #f5f8fa;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 60px);
+            margin-left: var(--nav-width);
+            transition: margin-left 0.3s ease;
+        }
+
+        .chat-container {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 20px;
+        }
+
+        /* Message Styles */
+        .message {
+            border-radius: 12px;
+            padding: 16px 20px;
+            max-width: 85%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .assistant-message {
+            align-self: flex-start;
+            background-color: white;
+            color: #333;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #e1ecf7;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* Image message style */
+        .image-message {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+
+        /* Input Area with Send Button */
+        .input-area {
+            background-color: white;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.03);
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .message-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 14px 50px 14px 14px;
+            font-size: 15px;
+            resize: none;
+            min-height: 60px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .send-button {
+            position: absolute;
+            right: 30px;
+            bottom: 30px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .send-button:hover {
+            color: var(--secondary-color);
+        }
+
+        /* File upload button */
+        .file-upload-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-upload-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .file-upload-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        /* File upload preview */
+        .file-preview {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-preview-name {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .file-preview-remove {
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: none;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .mobile-nav {
+                display: flex;
+            }
+
+            .navigation {
+                transform: translateX(-100%);
+                width: 300px;
+            }
+
+            .navigation.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+                min-height: calc(100vh - 60px);
+            }
+
+            .message {
+                max-width: 90%;
+                padding: 14px 18px;
+            }
+
+            .input-area {
+                padding: 16px;
+            }
+
+            .message-input {
+                min-height: 60px;
+                padding: 14px 50px 14px 14px;
+            }
+
+            .send-button {
+                right: 30px;
+                bottom: 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .message {
+                max-width: 95%;
+            }
+
+            .file-upload-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .send-button {
+                right: 25px;
+                bottom: 25px;
+            }
+
+            .typing-indicator {
+    align-self: flex-start;
+    font-style: italic;
+    color: #555;
+    font-size: 14px;
+    opacity: 0.75;
+}
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav">
+            <div class="mobile-nav-header">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-logo">
+                    <img src="logo 2.png" alt="Donna Logo">
+                </div>
+                <h1>Donna</h1>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileOverlay"></div>
+
+        <div class="main-content-area">
+            <!-- Desktop Navigation -->
+            <nav class="navigation" id="mainNavigation">
+                <div class="logo">
+                    <img src="logo 2.png" alt="Donna Logo">
+                </div>
+                <h1 class="navigation-title">Donna</h1>
+                <p class="navigation-subtitle">Where Workflows & Intelligence Meet</p>
+
+                <div class="nav-menu">
+                    <a href="workflow.html" class="nav-item" tabindex="0" role="button" aria-label="Chat">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Workflow</span>
+                    </a>
+                    <a href="contact.html" class="nav-item" tabindex="0" role="button" aria-label="Contacts">
+                        <i class="fas fa-address-book"></i>
+                        <span>Contacts</span>
+                    </a>
+                    <a href="documnets.html" class="nav-item active" tabindex="0" role="button" aria-label="Events">
+                        <i class="fas fa-calendar-day"></i>
+                        <span>Documents</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Main Chat Area -->
+            <main class="main-content">
+                <!-- Chat Container -->
+                <div class="chat-container" id="chatContainer">
+                    <!-- Messages will appear here -->
+                </div>
+
+                <!-- Input Area with Send Button -->
+                <div class="input-area">
+                    <div class="file-upload-container">
+                        <button class="file-upload-btn">
+                            <i class="fas fa-paperclip"></i> Attach File
+                        </button>
+                        <input type="file" class="file-upload-input" id="fileUploadInput"
+                            accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png">
+                    </div>
+                    <div id="filePreview" class="file-preview" style="display: none;">
+                        <span id="fileName" class="file-preview-name"></span>
+                        <span id="removeFile" class="file-preview-remove"><i class="fas fa-times"></i></span>
+                    </div>
+                    <div class="message-input-container">
+                        <textarea class="message-input" placeholder="Message Donna..." aria-label="Type your message"
+                            id="messageInput"></textarea>
+                        <button class="send-button" id="sendButton" aria-label="Send message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatContainer = document.getElementById('chatContainer');
+            const fileUploadInput = document.getElementById('fileUploadInput');
+            const filePreview = document.getElementById('filePreview');
+            const fileName = document.getElementById('fileName');
+            const removeFile = document.getElementById('removeFile');
+    
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const mainNavigation = document.getElementById('mainNavigation');
+    
+            const API_BASE_URL = 'http://127.0.0.1:8000';
+            const UPLOAD_API = `${API_BASE_URL}/upload/`;
+            const CHAT_API = `${API_BASE_URL}/chat/`;
+    
+            let sessionId = null;
+            let currentFile = null;
+    
+            async function fetchAPI(url, options = {}, errorMessage = 'Failed to fetch') {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(await response.text());
+                    return await response.json();
+                } catch (error) {
+                    console.error(error);
+                    showAssistantMessage(`${errorMessage}: ${error.message}`);
+                    return null;
+                }
+            }
+    
+            function showAssistantMessage(text) {
+                const msg = document.createElement('div');
+                msg.className = 'message assistant-message';
+                msg.setAttribute('role', 'status');
+    
+                const messageContent = typeof text === 'string' ? text : JSON.stringify(text);
+    
+                if (messageContent.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                    msg.innerHTML = `<img src="D:/AI/MCP/Dona Agent/main/${messageContent}" alt="Assistant response" class="image-message">`;
+                } else { 
+                    msg.innerHTML = `<p>${messageContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>`;
+
+                }
+    
+                chatContainer.appendChild(msg);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+    
+            function showUserMessage(text) {
+                const msg = document.createElement('div');
+                msg.className = 'message user-message';
+                msg.setAttribute('role', 'status');
+                msg.innerHTML = `<p>${text}</p>`;
+                chatContainer.appendChild(msg);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+    
+            async function uploadFile(file) {
+                const formData = new FormData();
+                formData.append('file', file);
+    
+                const response = await fetchAPI(UPLOAD_API, {
+                    method: 'POST',
+                    body: formData
+                }, 'Error uploading file');
+    
+                if (response?.session_id) {
+                    sessionId = response.session_id;
+                    currentFile = null;
+                    fileUploadInput.value = '';
+                    filePreview.style.display = 'none';
+                    showAssistantMessage("File uploaded successfully. You can now ask questions about it.");
+                }
+            }
+    
+            async function sendMessage() {
+    const message = messageInput.value.trim();
+
+    if (!message && !currentFile) return;
+
+    if (currentFile && !sessionId) {
+        await uploadFile(currentFile);
+        return;
+    }
+
+    if (message) {
+        showUserMessage(message);
+        messageInput.value = '';
+
+        // Add typing indicator
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'message assistant-message typing-indicator';
+        typingIndicator.setAttribute('id', 'typingIndicator');
+        typingIndicator.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-spinner fa-spin" style="color: var(--primary-color); font-size: 14px;"></i>
+                <span>Donna is typing...</span>
+            </div>
+        `;
+        chatContainer.appendChild(typingIndicator);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        // Fetch response from API
+        const response = await fetchAPI(CHAT_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question: message,
+                session_id: sessionId
+            })
+        }, 'Error sending message');
+
+        // Remove typing indicator
+        const indicatorElement = document.getElementById('typingIndicator');
+        if (indicatorElement) indicatorElement.remove();
+
+        if (response?.answer) {
+            showAssistantMessage(response.answer);
+        }
+    }
+}
+
+            // File upload events
+            fileUploadInput.addEventListener('change', function (e) {
+                if (e.target.files.length > 0) {
+                    currentFile = e.target.files[0];
+                    fileName.textContent = currentFile.name;
+                    filePreview.style.display = 'flex';
+                    sessionId = null;
+                }
+            });
+    
+            removeFile.addEventListener('click', function () {
+                currentFile = null;
+                fileUploadInput.value = '';
+                filePreview.style.display = 'none';
+                sessionId = null;
+            });
+    
+            // Message sending
+            messageInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+    
+            sendButton.addEventListener('click', sendMessage);
+    
+            // Mobile menu events
+            mobileMenuBtn.addEventListener('click', function () {
+                mainNavigation.classList.toggle('active');
+                mobileOverlay.style.display = mainNavigation.classList.contains('active') ? 'block' : 'none';
+            });
+    
+            mobileOverlay.addEventListener('click', function () {
+                mainNavigation.classList.remove('active');
+                mobileOverlay.style.display = 'none';
+            });
+    
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 992) {
+                    mainNavigation.classList.remove('active');
+                    mobileOverlay.style.display = 'none';
+                }
+            });
+    
+            // Welcome message
+            showAssistantMessage("Hello! I'm Donna, your personal assistant. How can I help you today?");
+        });
+    </script>
+    
+</body>
+
+</html>

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donna - Personal Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --nav-width: 280px;
+            --sidebar-width: 360px;
+            --primary-color: #0a2647;
+            --secondary-color: #144272;
+            --accent-color: #a3c4e0;
+            --email-unread: #e3f2fd;
+            --email-read: #f8f9fa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f8fa;
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Layout Container */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation (Mobile) */
+        .mobile-nav {
+            display: none;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 60px;
+        }
+
+        .mobile-nav-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mobile-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--accent-color);
+        }
+
+        .mobile-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Main Content Area */
+        .main-content-area {
+            display: flex;
+            flex: 1;
+            /* margin-top: 60px; */
+        }
+
+        /* Desktop Navigation */
+        .navigation {
+            width: var(--nav-width);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            top: 0px;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--accent-color);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .navigation-title {
+            font-size: 22px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .navigation-subtitle {
+            color: var(--accent-color);
+            margin-bottom: 35px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .nav-menu {
+            width: 100%;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            font-size: 16px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: var(--secondary-color);
+            transform: translateX(3px);
+        }
+
+        .nav-item.active {
+            background-color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            width: 24px;
+            text-align: center;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            background-color: #f5f8fa;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 60px);
+            margin-left: var(--nav-width);
+            margin-right: var(--sidebar-width);
+            transition: margin-right 0.3s ease;
+        }
+
+        .chat-container {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 20px;
+        }
+
+        /* Message Styles */
+        .message {
+            border-radius: 12px;
+            padding: 16px 20px;
+            max-width: 85%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .assistant-message {
+            align-self: flex-start;
+            background-color: white;
+            color: #333;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #e1ecf7;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* Input Area with Send Button */
+        .input-area {
+            background-color: white;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.03);
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .message-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 14px 50px 14px 14px;
+            font-size: 15px;
+            resize: none;
+            min-height: 60px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .send-button {
+            position: absolute;
+            right: 30px;
+            bottom: 30px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .send-button:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            padding: 25px 20px;
+            background-color: #f0f4f8;
+            overflow-y: auto;
+            border-left: 1px solid #e0e6ed;
+            position: fixed;
+            top: 0px;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .sidebar-title {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-title i {
+            font-size: 16px;
+        }
+
+        /* Card Styles */
+        .card {
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-card {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+        }
+
+        .task-card {
+            background-color: white;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .email-card {
+            background-color: white;
+            border-left: 3px solid #4a89dc;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .email-unread {
+            background-color: var(--email-unread);
+            border-left: 3px solid #4a89dc;
+        }
+
+        .email-read {
+            background-color: var(--email-read);
+            border-left: 3px solid #a0b3c6;
+        }
+
+        .card-title {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            font-weight: 600;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .email-sender {
+            font-size: 14px;
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .email-sender i {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .card-details {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .card-details i {
+            width: 16px;
+            text-align: center;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .event-meta {
+            color: var(--accent-color);
+        }
+
+        .task-meta {
+            color: #666;
+        }
+
+        .email-meta {
+            color: #888;
+            font-size: 12px;
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .priority-high {
+            color: #e74c3c;
+            font-weight: 500;
+        }
+
+        .task-description,
+        .email-preview {
+            color: #666;
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .email-unread-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background-color: #4a89dc;
+            border-radius: 50%;
+        }
+
+        /* Tabs for sidebar content */
+        .sidebar-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e0e6ed;
+        }
+
+        .sidebar-tab {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar-tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: 500;
+        }
+
+        .sidebar-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: none;
+        }
+
+        .mobile-sidebar-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 99;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Responsive Styles */
+        @media (min-width: 1201px) {
+            .sidebar.active+.main-content {
+                margin-right: var(--sidebar-width);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(100%);
+                width: 380px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .mobile-nav {
+                display: flex;
+            }
+
+            .navigation {
+                transform: translateX(-100%);
+                width: 300px;
+            }
+
+            .navigation.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+                min-height: calc(100vh - 60px);
+            }
+
+            .message {
+                max-width: 90%;
+                padding: 14px 18px;
+            }
+
+            .input-area {
+                padding: 16px;
+            }
+
+            .message-input {
+                min-height: 60px;
+                padding: 14px 50px 14px 14px;
+            }
+
+            .send-button {
+                right: 30px;
+                bottom: 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .message {
+                max-width: 95%;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-width: 380px;
+            }
+
+            .send-button {
+                right: 25px;
+                bottom: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav">
+            <div class="mobile-nav-header">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-logo">
+                    <img src="logo 2.png" alt="Donna Logo">
+                </div>
+                <h1>Donna</h1>
+            </div>
+            <button class="mobile-sidebar-toggle" id="mobileSidebarBtn">
+                <i class="fas fa-calendar-day"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileOverlay"></div>
+
+        <div class="main-content-area">
+            <!-- Desktop Navigation -->
+            <nav class="navigation" id="mainNavigation">
+                <div class="logo">
+                    <img src="logo 2.png" alt="Donna Logo">
+                </div>
+                <h1 class="navigation-title">Donna</h1>
+                <p class="navigation-subtitle">Where Workflows & Intelligence Meet</p>
+
+                <div class="nav-menu">
+                    <a href="workflow.html" class="nav-item active" tabindex="0" role="button" aria-label="Chat">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Workflow</span>
+                    </a>
+                    <a href="contact.html" class="nav-item" tabindex="0" role="button" aria-label="Contacts">
+                        <i class="fas fa-address-book"></i>
+                        <span>Contacts</span>
+                    </a>
+                    <a href="documnets.html" class="nav-item" tabindex="0" role="button" aria-label="Events">
+                        <i class="fas fa-calendar-day"></i>
+                        <span>Documents</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Main Chat Area -->
+            <main class="main-content">
+                <!-- Chat Container -->
+                <div class="chat-container">
+
+                </div>
+
+                <!-- Input Area with Send Button -->
+                <div class="input-area">
+                    <div class="message-input-container">
+                        <textarea class="message-input" placeholder="Message Donna..." aria-label="Type your message"
+                            id="messageInput"></textarea>
+                        <button class="send-button" id="sendButton" aria-label="Send message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Sidebar -->
+            <aside class="sidebar" id="mainSidebar">
+                <div class="sidebar-tabs">
+                    <div class="sidebar-tab active" data-tab="upcoming">
+                        <i class="fas fa-calendar-day"></i> Upcoming
+                    </div>
+                    <div class="sidebar-tab" data-tab="emails">
+                        <i class="fas fa-envelope"></i> Emails
+                    </div>
+                </div>
+
+                <div class="tab-content active" id="upcoming-tab">
+                    <h2 class="sidebar-title">
+                        <i class="fas fa-calendar-day"></i> Upcoming
+                    </h2>
+
+                    <!-- Event Card -->
+                    <div class="card event-card" role="button" tabindex="0">
+                        <h3 class="card-title">Team Sync</h3>
+                        <div class="card-details">
+                            <span><i class="far fa-clock"></i> 2:00 PM</span>
+                            <span><i class="fas fa-map-marker-alt"></i> Conf. Room B</span>
+                        </div>
+                        <div class="card-meta event-meta">
+                            <span>Today</span>
+                            <span>15 mins</span>
+                        </div>
+                    </div>
+
+                    <!-- Task Card -->
+                    <div class="card task-card" role="button" tabindex="0">
+                        <h3 class="card-title">Quarterly Report</h3>
+                        <p class="task-description">Review and send feedback</p>
+                        <div class="card-meta task-meta">
+                            <span class="priority-high"><i class="fas fa-exclamation"></i> High</span>
+                            <span>Tomorrow</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="emails-tab">
+                    <h2 class="sidebar-title">
+                        <i class="fas fa-envelope"></i> Emails
+                    </h2>
+                    <!-- Email cards will be added here dynamically -->
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatContainer = document.querySelector('.chat-container');
+            const sidebar = document.getElementById('mainSidebar');
+
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileSidebarBtn = document.getElementById('mobileSidebarBtn');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const mainNavigation = document.getElementById('mainNavigation');
+
+            const API_BASE_URL = 'http://127.0.0.1:8000';
+            const ASK_API = `${API_BASE_URL}/ask`;
+            const GET_TASKS_API = `${API_BASE_URL}/api/tasks_today`;
+            const GET_EVENTS_API = `${API_BASE_URL}/api/events_today`;
+            const GET_EMAILS_API = `${API_BASE_URL}/api/emails`;
+
+            // Tab switching functionality
+            const tabs = document.querySelectorAll('.sidebar-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and content
+                    document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+
+            async function fetchAPI(url, options = {}, errorMessage = 'Failed to fetch') {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(await response.text());
+                    return await response.json();
+                } catch (error) {
+                    console.error(error);
+                    showAssistantMessage(`${errorMessage}: ${error.message}`);
+                    return null;
+                }
+            }
+
+            function showAssistantMessage(text) {
+    // Convert **text** to <strong>text</strong> (Markdown-style bold)
+    const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    const msg = document.createElement('div');
+    msg.className = 'message assistant-message';
+    msg.setAttribute('role', 'status');
+    msg.innerHTML = `<p>${formattedText}</p>`;
+    chatContainer.appendChild(msg);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+
+            function showUserMessage(text) {
+                const msg = document.createElement('div');
+                msg.className = 'message user-message';
+                msg.setAttribute('role', 'status');
+                msg.innerHTML = `<p>${text}</p>`;
+                chatContainer.appendChild(msg);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            function clearSidebar() {
+                const upcomingTab = document.getElementById('upcoming-tab');
+                upcomingTab.innerHTML = `
+                    <h2 class="sidebar-title">
+                        <i class="fas fa-calendar-day"></i> Upcoming
+                    </h2>
+                `;
+            }
+
+            function addTaskCard(task) {
+                const upcomingTab = document.getElementById('upcoming-tab');
+                const card = document.createElement('div');
+                card.className = 'card task-card';
+                card.innerHTML = `
+                    <h3 class="card-title">${task.task_title}</h3>
+                    <p class="task-description">${task.description || ''}</p>
+                    <div class="card-meta task-meta">
+                        <span class="${task.importance === 'high' ? 'priority-high' : 'priority-medium'}">
+                             ${task.importance || 'Medium'}
+                        </span>
+                        <span>${task.due_date.substring(0, 10)
+                    || 'Today'}</span>
+                    </div>
+                `;
+                upcomingTab.appendChild(card);
+            }
+
+            function addEventCard(event) {
+                const upcomingTab = document.getElementById('upcoming-tab');
+                const card = document.createElement('div');
+                card.className = 'card event-card';
+                card.innerHTML = `
+                    <h3 class="card-title">${event.title}</h3>
+                    <div class="card-details">
+                        <span><i class="far fa-clock"></i> ${event.time}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${event.location}</span>
+                    </div>
+                    <div class="card-meta event-meta">
+                        <span>${event.date || 'Today'}</span>
+                        <span>${event.duration || ''}</span>
+                    </div>
+                `;
+                upcomingTab.appendChild(card);
+            }
+
+            function addEmailCard(email) {
+                const emailsTab = document.getElementById('emails-tab');
+                const card = document.createElement('div');
+                card.className = `card email-card ${email.is_read ? 'email-read' : 'email-unread'}`;
+
+                // Format the received date
+                const receivedDate = new Date(email.received_datetime);
+                const formattedDate = receivedDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                card.innerHTML = `
+                    ${!email.is_read ? '<div class="email-unread-badge"></div>' : ''}
+                    <h3 class="card-title">${email.subject}</h3>
+                    <div class="email-sender">
+                        <span>${email.sender_name}</span>
+                        <i class="fas fa-angle-right"></i>
+                        <span>${email.sender_email}</span>
+                    </div>
+                    <p class="email-preview">${email.body_preview || 'No preview available'}</p>
+                    <div class="email-meta">
+                        <span style="color:black">${formattedDate}</span>
+                        <span style="color:black">${email.is_read ? 'Read' : 'Unread'}</span>
+                    </div>
+                `;
+                emailsTab.appendChild(card);
+            }
+
+            async function sendMessage() {
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    showUserMessage(message);
+    messageInput.value = '';
+
+    // Show loading message
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'message assistant-message';
+    loadingMsg.setAttribute('id', 'loadingMessage');
+    loadingMsg.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-spinner fa-spin" style="color: var(--primary-color); font-size: 16px;"></i>
+            <span>Donna is typing...</span>
+        </div>
+    `;
+    chatContainer.appendChild(loadingMsg);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    const response = await fetchAPI(ASK_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: message })
+    }, 'Error sending message');
+
+    // Remove loader
+    loadingMsg.remove();
+
+    if (response?.response) {
+        showAssistantMessage(response.response);
+    }
+
+    await loadTasksAndEvents();
+    await loadEmails();
+}
+
+            async function loadWelcomeMessage() {
+                const response = await fetchAPI(API_BASE_URL, {}, 'Error fetching welcome message');
+                if (response?.message) showAssistantMessage(response.message);
+            }
+
+            async function loadTasksAndEvents() {
+    const upcomingTab = document.getElementById('upcoming-tab');
+
+    // Show loader
+    upcomingTab.innerHTML = `
+        <h2 class="sidebar-title"><i class="fas fa-calendar-day"></i> Upcoming</h2>
+        <div id="tasksEventsLoader" style="text-align:center; padding: 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary-color);"></i>
+            <p style="color: #888;">Loading tasks & events...</p>
+        </div>
+    `;
+
+    const tasksResponse = await fetchAPI(GET_TASKS_API, {}, 'Error loading tasks');
+    const eventsResponse = await fetchAPI(GET_EVENTS_API, {}, 'Error loading events');
+
+    // Reset section title after loading
+    upcomingTab.innerHTML = `
+        <h2 class="sidebar-title"><i class="fas fa-calendar-day"></i> Upcoming</h2>
+    `;
+
+    let hasContent = false;
+
+    if (tasksResponse?.tasks_due_today?.length) {
+        hasContent = true;
+        tasksResponse.tasks_due_today.forEach(addTaskCard);
+    }
+
+    if (eventsResponse?.events_today?.length) {
+        hasContent = true;
+        eventsResponse.events_today.forEach(event => {
+            const start = new Date(event.start_time);
+            const end = new Date(event.end_time);
+            const istStart = new Date(start.getTime() + 5.5 * 60 * 60 * 1000);
+            const istEnd = new Date(end.getTime() + 5.5 * 60 * 60 * 1000);
+            addEventCard({
+                title: event.subject,
+                time: istStart.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+                location: event.location || 'No location',
+                date: istStart.toLocaleDateString('en-IN'),
+                duration: `${(istEnd - istStart) / (1000 * 60)} mins`
+            });
+        });
+    }
+
+    if (!hasContent) {
+        upcomingTab.innerHTML += `<p style="text-align: center; color: #666;">No upcoming tasks or events found</p>`;
+    }
+}
+
+async function loadEmails() {
+    const emailsTab = document.getElementById('emails-tab');
+
+    // Show loader
+    emailsTab.innerHTML = `
+        <h2 class="sidebar-title"><i class="fas fa-envelope"></i> Emails</h2>
+        <div id="emailsLoader" style="text-align:center; padding: 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary-color);"></i>
+            <p style="color: #888;">Loading emails...</p>
+        </div>
+    `;
+
+    const emailsResponse = await fetchAPI(GET_EMAILS_API, {}, 'Error loading emails');
+
+    emailsTab.innerHTML = `
+        <h2 class="sidebar-title"><i class="fas fa-envelope"></i> Emails</h2>
+    `;
+
+    if (emailsResponse?.emails?.length) {
+        emailsResponse.emails.forEach(addEmailCard);
+    } else {
+        emailsTab.innerHTML += `<p style="text-align: center; color: #666;">No emails found</p>`;
+    }
+}
+
+            messageInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            sendButton.addEventListener('click', sendMessage);
+
+            mobileMenuBtn.addEventListener('click', function () {
+                mainNavigation.classList.toggle('active');
+                mobileOverlay.style.display = mainNavigation.classList.contains('active') ? 'block' : 'none';
+            });
+            mobileSidebarBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                mobileOverlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+            });
+            mobileOverlay.addEventListener('click', function () {
+                mainNavigation.classList.remove('active');
+                sidebar.classList.remove('active');
+                mobileOverlay.style.display = 'none';
+            });
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 992) {
+                    mainNavigation.classList.remove('active');
+                    sidebar.classList.remove('active');
+                    mobileOverlay.style.display = 'none';
+                }
+            });
+
+            loadWelcomeMessage();
+            loadTasksAndEvents();
+            loadEmails();
+        });
+    </script>
+</body>
+
+</html>

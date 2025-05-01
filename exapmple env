@@ -1,0 +1,23 @@
+# Azure OpenAI Configuration
+AZURE_OPENAI_API_KEY=         # Replace with your Azure OpenAI API key
+AZURE_OPENAI_ENDPOINT=        # Replace with your Azure OpenAI endpoint
+AZURE_OPENAI_API_VERSION=     # Replace with your Azure OpenAI API version
+AZURE_OPENAI_DEPLOYMENT_NAME= # Replace with your Azure OpenAI deployment name
+
+# Azure Form Recognizer Configuration
+AZURE_FORM_RECOGNIZER_ENDPOINT=   # Replace with your Azure Form Recognizer endpoint
+AZURE_FORM_RECOGNIZER_KEY=        # Replace with your Azure Form Recognizer API key
+
+# Microsoft Graph API (Authentication)
+TENANT_ID=                # Replace with your Azure tenant ID
+CLIENT_ID=                # Replace with your Azure client ID
+AZURE_CLIENT_SECRET=      # Replace with your Azure client secret
+GRAPH_SCOPES=             # Replace with required Graph scopes
+SECRET_ID=                # Replace with your Azure Key Vault secret ID
+USERNAME=                 # Replace with your user email for authentication
+
+# Database Connection
+DATABASE_URL=             # Replace with your PostgreSQL connection string
+
+# Tavily API (External Search)
+TAVILY_API_KEY=           # Replace with your Tavily API key

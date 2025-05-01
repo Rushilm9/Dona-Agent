@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donna - Contact Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --nav-width: 280px;
+            --sidebar-width: 360px;
+            --primary-color: #0a2647;
+            --secondary-color: #144272;
+            --accent-color: #a3c4e0;
+            --email-unread: #e3f2fd;
+            --email-read: #f8f9fa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f8fa;
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Layout Container */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation (Mobile) */
+        .mobile-nav {
+            display: none;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 60px;
+        }
+
+        .mobile-nav-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mobile-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--accent-color);
+        }
+
+        .mobile-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Main Content Area */
+        .main-content-area {
+            display: flex;
+            flex: 1;
+            /* margin-top: 60px; */
+        }
+
+        /* Desktop Navigation */
+        .navigation {
+            width: var(--nav-width);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            top: 0px;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--accent-color);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .navigation-title {
+            font-size: 22px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .navigation-subtitle {
+            color: var(--accent-color);
+            margin-bottom: 35px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .nav-menu {
+            width: 100%;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            font-size: 16px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: var(--secondary-color);
+            transform: translateX(3px);
+        }
+
+        .nav-item.active {
+            background-color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            width: 24px;
+            text-align: center;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            background-color: #f5f8fa;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 60px);
+            margin-left: var(--nav-width);
+            margin-right: var(--sidebar-width);
+            transition: margin-right 0.3s ease;
+        }
+
+        /* Form Styles */
+        .form-container {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-title {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(10, 38, 71, 0.1);
+        }
+
+        .form-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .form-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            padding: 25px 20px;
+            background-color: #f0f4f8;
+            overflow-y: auto;
+            border-left: 1px solid #e0e6ed;
+            position: fixed;
+            top: 0px;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .sidebar-title {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-title i {
+            font-size: 16px;
+        }
+
+        /* Contact Card Styles */
+        .contact-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .contact-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .contact-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .contact-org {
+            font-size: 14px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .contact-details {
+            margin-top: 15px;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .contact-detail i {
+            width: 20px;
+            color: var(--primary-color);
+            margin-right: 10px;
+            text-align: center;
+        }
+
+        .contact-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .contact-action {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 14px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .contact-action:hover {
+            background-color: rgba(10, 38, 71, 0.1);
+        }
+
+        .contact-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        /* Responsive Styles */
+        @media (min-width: 1201px) {
+            .sidebar.active+.main-content {
+                margin-right: var(--sidebar-width);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(100%);
+                width: 380px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .mobile-nav {
+                display: flex;
+            }
+
+            .navigation {
+                transform: translateX(-100%);
+                width: 300px;
+            }
+
+            .navigation.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+                min-height: calc(100vh - 60px);
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                max-width: 380px;
+            }
+
+            .form-container {
+                padding: 15px;
+            }
+
+            .contact-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .contact-avatar {
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: none;
+        }
+
+        .mobile-sidebar-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 99;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav">
+            <div class="mobile-nav-header">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-logo">
+                    <img src="logo 2.jpg" alt="Donna Logo">
+                </div>
+                <h1>Donna</h1>
+            </div>
+            <button class="mobile-sidebar-toggle" id="mobileSidebarBtn">
+                <i class="fas fa-address-book"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileOverlay"></div>
+
+        <div class="main-content-area">
+            <!-- Desktop Navigation -->
+            <nav class="navigation" id="mainNavigation">
+                <div class="logo">
+                    <img src="logo 2.png" alt="Donna Logo">
+                </div>
+                <h1 class="navigation-title">Donna</h1>
+                <p class="navigation-subtitle">Where Workflows & Intelligence Meet</p>
+
+                <div class="nav-menu">
+                    <a href="workflow.html" class="nav-item" tabindex="0" role="button" aria-label="Chat">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Workflow</span>
+                    </a>
+                    <a href="contact.html" class="nav-item active" tabindex="0" role="button" aria-label="Contacts">
+                        <i class="fas fa-address-book"></i>
+                        <span>Contacts</span>
+                    </a>
+                    <a href="documnets.html" class="nav-item" tabindex="0" role="button" aria-label="Events">
+                        <i class="fas fa-calendar-day"></i>
+                        <span>Documents</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <!-- Form Container -->
+                <div class="form-container">
+                    <h2 class="form-title">Add New Contact</h2>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" id="name" class="form-input" placeholder="Enter full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" id="email" class="form-input" placeholder="Enter email address"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="birthDate" class="form-label">Birth Date</label>
+                            <input type="date" id="birthDate" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" id="phone" class="form-input" placeholder="Enter phone number" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="organization" class="form-label">Organization</label>
+                            <input type="text" id="organization" class="form-input"
+                                placeholder="Enter organization name">
+                        </div>
+
+                        <button type="submit" class="form-button">Save Contact</button>
+                    </form>
+                </div>
+            </main>
+
+            <!-- Sidebar - Contacts List -->
+            <!-- ... [Everything above remains unchanged] ... -->
+
+<!-- Sidebar - Contacts List -->
+<aside class="sidebar" id="mainSidebar">
+    <h2 class="sidebar-title">
+        <i class="fas fa-users"></i> All Contacts
+    </h2>
+    <div id="contactsList">
+        <div id="contactsLoader" style="text-align:center; padding: 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary-color);"></i>
+            <p style="color: #888;">Loading contacts...</p>
+        </div>
+    </div>
+</aside>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const contactForm = document.getElementById('contactForm');
+            const contactsList = document.getElementById('contactsList');
+            const sidebar = document.getElementById('mainSidebar');
+
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileSidebarBtn = document.getElementById('mobileSidebarBtn');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const mainNavigation = document.getElementById('mainNavigation');
+
+            // API endpoints
+            const API_BASE_URL = 'http://127.0.0.1:8000';
+            const ADD_CONTACT_API = `${API_BASE_URL}/api/add_contact`;
+            const GET_CONTACTS_API = `${API_BASE_URL}/api/contacts`;
+
+            async function fetchAPI(url, options = {}, errorMessage = 'Failed to fetch') {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(await response.text());
+                    return await response.json();
+                } catch (error) {
+                    console.error(error);
+                    showNotification(`${errorMessage}: ${error.message}`, 'error');
+                    return null;
+                }
+            }
+
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.classList.add('fade-out');
+                    setTimeout(() => notification.remove(), 500);
+                }, 3000);
+            }
+
+            function createContactCard(contact) {
+                const card = document.createElement('div');
+                card.className = 'contact-card';
+
+                // Get initials for avatar
+                const names = contact.displayName.trim().split(' ');
+                const initials = names[0].charAt(0).toUpperCase() + (names.length > 1 ? names[names.length - 1].charAt(0).toUpperCase() : '');
+
+                // Format birth date
+                const birthDate = contact.birthday ? new Date(contact.birthday).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }) : 'Not specified';
+
+                // Get phone number
+                const phone = contact.businessPhones?.[0] || 'Not specified';
+
+                // Get email
+                const email = contact.emailAddresses?.[0]?.address || 'Not specified';
+
+                // Get organization/company
+                const organization = contact.companyName || 'No organization';
+
+                card.innerHTML = `
+        <div class="contact-header">
+            <div class="contact-avatar" style="background-color: ${getRandomColor()}">
+                ${initials}
+            </div>
+            <div>
+                <h3 class="contact-name">${contact.displayName}</h3>
+                <p class="contact-org">${organization}</p>
+            </div>
+            <div class="contact-badge">New</div>
+        </div>
+        <div class="contact-details">
+            <div class="contact-detail">
+                <i class="fas fa-envelope"></i>
+                <span>${email}</span>
+            </div>
+            <div class="contact-detail">
+                <i class="fas fa-phone"></i>
+                <span>${phone}</span>
+            </div>
+            <div class="contact-detail">
+                <i class="fas fa-birthday-cake"></i>
+                <span>${birthDate}</span>
+            </div>
+        </div>
+        
+    `;
+
+                return card;
+            }
+
+
+            function getRandomColor() {
+                const colors = [
+                    '#0a2647', '#144272', '#205295', '#2C74B3',
+                    '#4a89dc', '#5d9cec', '#6777ef', '#8c82fc'
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            async function loadContacts() {
+    // Show loader
+    contactsList.innerHTML = `
+        <div id="contactsLoader" style="text-align:center; padding: 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary-color);"></i>
+            <p style="color: #888;">Loading contacts...</p>
+        </div>
+    `;
+
+    const response = await fetchAPI(GET_CONTACTS_API, {}, 'Error loading contacts');
+
+    if (response?.contacts?.length) {
+        contactsList.innerHTML = ''; // Clear loader and old contacts
+        response.contacts.forEach(contact => {
+            contactsList.appendChild(createContactCard(contact));
+        });
+    } else {
+        contactsList.innerHTML = '<p style="text-align: center; color: #666;">No contacts found</p>';
+    }
+}
+
+
+            async function handleFormSubmit(e) {
+                e.preventDefault();
+
+                const contactData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    mobile: document.getElementById('phone').value,
+                    birthday: document.getElementById('birthDate').value,
+                    company_name: document.getElementById('organization').value
+                };
+
+                const response = await fetchAPI(ADD_CONTACT_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(contactData)
+                }, 'Error adding contact');
+
+                if (response?.message == "✅ Contact added successfully!") {
+                    showNotification('Contact added successfully!');
+                    contactForm.reset();
+                    await loadContacts();
+                }
+            }
+
+            // Event listeners
+            contactForm.addEventListener('submit', handleFormSubmit);
+
+            mobileMenuBtn.addEventListener('click', function () {
+                mainNavigation.classList.toggle('active');
+                mobileOverlay.style.display = mainNavigation.classList.contains('active') ? 'block' : 'none';
+            });
+
+            mobileSidebarBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                mobileOverlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+            });
+
+            mobileOverlay.addEventListener('click', function () {
+                mainNavigation.classList.remove('active');
+                sidebar.classList.remove('active');
+                mobileOverlay.style.display = 'none';
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 992) {
+                    mainNavigation.classList.remove('active');
+                    sidebar.classList.remove('active');
+                    mobileOverlay.style.display = 'none';
+                }
+            });
+
+            // Initial load
+            loadContacts();
+        });
+    </script>
+</body>
+
+</html>
