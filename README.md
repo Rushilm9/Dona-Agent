@@ -120,6 +120,93 @@ This module enables users to upload documents (PDF, Excel, CSV) and interact wit
 - 📊 Analyze Excel files and generate graphs in seconds  
 - 📄 Summarize PDFs using AI  
 - ✉️ Send emails by simply giving a prompt  
-- 📅 Manage meetings by checking participants' availability  
+- 📅 Manage meetings by checking participants' availability
+- 
 
+
+## 🚀 UI Overview
+
+Donna – The AI-Powered Business Agent – is structured across three interactive pages, each offering powerful features to streamline your productivity using AI + Microsoft Graph.
+
+---
+
+### 📄 Page 1: Workflow Management Dashboard
+
+![Workflow Management](workflow.png)
+
+#### 🔹 Description:
+This is your main control hub. On this page, you can:
+- View **today's tasks and events**
+- See **recent emails**
+- Interact with the **Natural Language Chatbot** to perform a wide range of operations
+
+#### 🧠 NLP Chatbot Capabilities:
+
+- You can get or add new contacts using simple commands like "Add contact for John Doe".
+- You can manage events by adding, deleting, or updating them. You can also view all upcoming events or just today's events.
+- The chatbot lets you set or get your current presence status (like Available or Busy).
+- You can add new tasks, delete existing ones, or list all your tasks—including filtering for just today's tasks.
+- You can join Microsoft Teams, send messages to team members, and list all your available teams.
+- User management is also possible—delete a user, update someone's display name, create new users, or list all users in your organization.
+- You can fetch or send emails directly by typing what you want to say, and the agent will even format the email for you.
+- You can perform a web search by just typing your query into the chatbot.
+
+
+#### ✅ Key Features:
+1. ✉️ **Email Formatter & Sender**  
+   Type:  
+   `"Write an email to Rahul about project delay"`  
+   → The agent formats the email and asks you for approval before sending it to Rahul (using contact info).
+
+2. ✅ **Smart Task Management**  
+   Add, delete, or update your to-do items using simple phrases like:  
+   `"Add a task to submit the report by 5 PM"`  
+
+3. 📅 **Smart Event Scheduling**  
+   Donna checks your availability before scheduling meetings or events.  
+   You can also delete or update events with ease.
+
+---
+
+### 👤 Page 2: Contact Management
+
+![Contact Management](contact.png)
+
+#### 🔹 Description:
+This page allows you to:
+- Add new contacts
+- View existing contact details
+
+The chatbot references this contact list when performing operations like sending emails or scheduling events.
+
+---
+
+### 📑 Page 3: Document Analyzer
+
+![Document Analyzer](doc.png)
+
+#### 🔹 Description:
+Upload PDF, Excel, or CSV files and ask any question related to the document's data.
+
+#### ✅ Key Features:
+1. 📄 **Smart PDF Reader**  
+   - Summarizes complex documents  
+   - Answers specific questions like:  
+     `"What are the contract terms?"` or `"Summarize the report"`  
+
+2. 📊 **Advanced Excel/CSV Analyzer**  
+   - Supports multi-sheet Excel files  
+   - Type a question like: `"Show revenue by department"`  
+   - Automatically generates graphs  
+   - Supports `.csv` files as well
+
+###  Clone the Repository
+
+```bash
+git clone https://github.com/your-username/donna-business-agent.git
+cd donna-business-agent
+
+pip install -r requirements.txt
+
+uvicorn api:app --reload
 
